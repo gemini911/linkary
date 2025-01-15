@@ -1,0 +1,13 @@
+{
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_BASE_URL": "https://your-vercel-app-url.vercel.app"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/sites",
+      "dest": "/api/sites"
+    }
+  ]
+}
