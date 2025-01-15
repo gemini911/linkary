@@ -18,12 +18,10 @@ async function getTools(): Promise<ToolsResponse> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     console.log("Fetching tools from:", baseUrl);
-
-    // 添加调试信息
     console.log("Full API URL:", `${baseUrl}/api/sites`);
 
     const res = await fetch(`${baseUrl}/api/sites`, {
-      next: { revalidate: 60 }, // 60秒缓存
+      next: { revalidate: 60 },
       headers: {
         "Content-Type": "application/json",
       },
@@ -36,10 +34,20 @@ async function getTools(): Promise<ToolsResponse> {
     }
 
     const data = await res.json();
-    if (!data?.tools) {
+    console.log("API Response Data:", data);
+
+    // 确保数据格式正确
+    if (!data || !Array.isArray(data.tools)) {
       throw new Error("Invalid tools data format");
     }
-    return data;
+
+    // 添加默认分类
+    const toolsWithCategory = data.tools.map((tool: Tool) => ({
+      ...tool,
+      category: tool.category || "未分类",
+    }));
+
+    return { tools: toolsWithCategory };
   } catch (error) {
     console.error("Error fetching tools:", error);
     return { tools: [] };
@@ -55,10 +63,8 @@ export default async function Home() {
 
   return (
     <div className={styles.container}>
-      {/* 预留区域 */}
       <div className={styles.header}>{/* 未来放置 logo 和关联插件按钮 */}</div>
       <div className={styles.main}>
-        {/* 左侧分类导航 */}
         <div className={styles.sidebar}>
           <h2 className={styles.sidebarTitle}>分类</h2>
           <nav className={styles.nav}>
@@ -74,7 +80,6 @@ export default async function Home() {
           </nav>
         </div>
 
-        {/* 右侧内容区域 */}
         <div className={styles.content}>
           <h1 className={styles.title}>工具导航</h1>
 
