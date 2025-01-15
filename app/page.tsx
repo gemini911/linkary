@@ -16,7 +16,10 @@ interface ToolsResponse {
 
 async function getTools(): Promise<ToolsResponse> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_BASE_URL || "/"
+        : "http://localhost:3000";
     console.log("Fetching tools from:", baseUrl);
     console.log("Full API URL:", `${baseUrl}/api/sites`);
 
