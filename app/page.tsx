@@ -19,9 +19,17 @@ async function getTools(): Promise<ToolsResponse> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     console.log("Fetching tools from:", baseUrl);
 
+    // 添加调试信息
+    console.log("Full API URL:", `${baseUrl}/api/sites`);
+
     const res = await fetch(`${baseUrl}/api/sites`, {
       next: { revalidate: 60 }, // 60秒缓存
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+
+    console.log("API Response Status:", res.status);
 
     if (!res.ok) {
       throw new Error(`Failed to fetch tools: ${res.status} ${res.statusText}`);
