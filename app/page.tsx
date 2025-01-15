@@ -18,7 +18,8 @@ async function getTools(): Promise<ToolsResponse> {
   try {
     const baseUrl =
       process.env.NODE_ENV === "production"
-        ? process.env.NEXT_PUBLIC_BASE_URL || "/"
+        ? process.env.NEXT_PUBLIC_BASE_URL ||
+          "https://your-vercel-app-url.vercel.app"
         : "http://localhost:3000";
     console.log("Fetching tools from:", baseUrl);
     console.log("Full API URL:", `${baseUrl}/api/sites`);
