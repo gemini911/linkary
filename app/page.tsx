@@ -16,7 +16,8 @@ interface ToolsResponse {
 
 async function getTools(): Promise<ToolsResponse> {
   try {
-    const baseUrl = "https://linkary-puce.vercel.app";
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "https://linkary-puce.vercel.app";
     console.log("Fetching tools from:", baseUrl);
     console.log("Full API URL:", `${baseUrl}/api/sites`);
 
