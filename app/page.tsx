@@ -16,16 +16,22 @@ interface ToolsResponse {
 
 async function getTools(): Promise<ToolsResponse> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/sites`
-    );
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    console.log("Fetching tools from:", baseUrl);
+
+    const res = await fetch(`${baseUrl}/api/sites`, {
+      next: { revalidate: 60 }, // 60秒缓存
+    });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch tools");
+      throw new Error(`Failed to fetch tools: ${res.status} ${res.statusText}`);
     }
 
     const data = await res.json();
-    return data || { tools: [] };
+    if (!data?.tools) {
+      throw new Error("Invalid tools data format");
+    }
+    return data;
   } catch (error) {
     console.error("Error fetching tools:", error);
     return { tools: [] };
