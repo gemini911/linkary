@@ -1,29 +1,69 @@
 import { NextResponse } from "next/server";
-
-const GIST_RAW_URL =
-  "https://gist.githubusercontent.com/gemini911/519fc49d3ec876684c42dada6f81a3da/raw/sites.json";
+import { supabase } from "@/lib/supabaseClient";
 
 export async function GET() {
   try {
-    const response = await fetch(GIST_RAW_URL, {
-      cache: "no-cache",
-    });
+    const { data: sites, error } = await supabase
+      .from("sites")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch sites from Gist");
+    if (error) {
+      throw error;
     }
 
-    const data = await response.json();
-    // 确保返回格式正确
-    return NextResponse.json(data, {
+    return NextResponse.json({ tools: sites }, {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store", // Ensure fresh data
       },
     });
   } catch (error: unknown) {
-    console.error("Error fetching sites:", error);
+    console.error("Error fetching sites from Supabase:", error);
     return NextResponse.json(
       { error: "Failed to fetch sites" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, url, logo, category, tags, description } = body;
+
+    // Basic validation
+    if (!name || !url) {
+      return NextResponse.json(
+        { error: "Name and URL are required" },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("sites")
+      .insert([
+        {
+          name,
+          url,
+          logo,
+          category: category || "Uncategorized",
+          tags: tags || [],
+          description,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({ tool: data }, { status: 201 });
+  } catch (error: unknown) {
+    console.error("Error creating site:", error);
+    return NextResponse.json(
+      { error: "Failed to create site" },
       { status: 500 }
     );
   }
