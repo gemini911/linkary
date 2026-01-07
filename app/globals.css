@@ -12,6 +12,19 @@
   --glass-border: rgba(255, 255, 255, 0.08);
 }
 
+[data-theme='light'] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(226, 232, 240, 0.8);
+  --accent: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.1);
+  --secondary: #f1f5f9;
+  --muted: #64748b;
+  --glass: rgba(0, 0, 0, 0.02);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

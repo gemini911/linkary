@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '../app/page.module.css';
 import AddSiteModal from './AddSiteModal';
 
@@ -24,6 +24,20 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     const [tools, setTools] = useState(initialTools);
     const [activeCategory, setActiveCategory] = useState('All');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [theme, setTheme] = useState('dark');
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        document.body.setAttribute('data-theme', savedTheme);
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    };
 
 
     const categories = ['All', ...Array.from(new Set(initialTools.map((tool) => tool.category || 'Uncategorized')))];
@@ -99,13 +113,49 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                     </section>
                 )}
             </main>
+
+            <button className={styles.themeToggle} onClick={toggleTheme} title="Toggle Theme">
+                {theme === 'dark' ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                )}
+            </button>
         </div>
     );
 }
 
 function ToolCard({ tool }: { tool: Tool }) {
     const [error, setError] = useState(false);
-    const faviconUrl = tool.logo || `https://www.google.com/s2/favicons?domain=${new URL(tool.url).hostname}&sz=64`;
+
+    // 智能提取主域名 (e.g., docs.nextjs.org -> nextjs.org)
+    const getRootDomain = (urlStr: string) => {
+        try {
+            const host = new URL(urlStr).hostname;
+            const parts = host.split('.');
+            if (parts.length > 2) {
+                return parts.slice(-2).join('.');
+            }
+            return host;
+        } catch {
+            return '';
+        }
+    };
+
+    const rootDomain = getRootDomain(tool.url);
+    const faviconUrl = tool.logo || `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=64`;
 
     return (
         <a
