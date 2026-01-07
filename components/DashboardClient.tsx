@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import styles from '../app/page.module.css';
 import AddSiteModal from './AddSiteModal';
 
@@ -118,6 +116,7 @@ function ToolCard({ tool }: { tool: Tool }) {
         >
             <div className={styles.cardHeader}>
                 <div className={styles.cardImageWrapper}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={error ? '/default-favicon.png' : faviconUrl}
                         alt={tool.name}

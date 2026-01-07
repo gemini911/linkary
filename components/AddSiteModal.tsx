@@ -3,10 +3,20 @@
 import { useState } from 'react';
 import styles from './Modal.module.css';
 
+interface Tool {
+    id: number;
+    name: string;
+    url: string;
+    tags: string[];
+    logo: string;
+    category: string;
+    description?: string;
+}
+
 interface AddSiteModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAdd: (site: any) => void;
+    onAdd: (site: Tool) => void;
     supabaseUrl: string;
     supabaseKey: string;
 }
