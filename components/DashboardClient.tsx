@@ -9,7 +9,7 @@ interface Tool {
     name: string;
     url: string;
     tags: string[];
-    logo: string;
+    logo?: string;
     category: string;
     description?: string;
 }

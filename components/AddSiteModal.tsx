@@ -40,10 +40,9 @@ export default function AddSiteModal({ isOpen, onClose, onAdd, supabaseUrl, supa
         const newSite = {
             name: formData.name,
             url: formData.url,
-            category: formData.category || 'Uncategorized',
+            category: formData.category || '未分类',
             tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
-            description: formData.description,
-            logo: `https://www.google.com/s2/favicons?domain=${new URL(formData.url).hostname}&sz=64`
+            description: formData.description
         };
 
         try {
@@ -63,10 +62,14 @@ export default function AddSiteModal({ isOpen, onClose, onAdd, supabaseUrl, supa
                 onAdd(data[0]);
                 onClose();
                 setFormData({ name: '', url: '', category: '', tags: '', description: '' });
+            } else {
+                const errorData = await response.json();
+                console.error('Supabase Error:', errorData);
+                alert(`添加失败: ${errorData.message || '未知错误'}`);
             }
         } catch (err) {
-            console.error('Error adding site:', err);
-            alert('Failed to add site. Check your Supabase configuration.');
+            console.error('Network Error:', err);
+            alert('网络请求失败，请检查连接');
         } finally {
             setLoading(false);
         }
