@@ -60,9 +60,10 @@
 
 .main {
   flex: 1;
-  padding: 3rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 3rem 4rem;
+  max-width: 1800px;
+  /* 增大最大宽度以适配 4K */
+  margin: 0;
   width: 100%;
 }
 
@@ -98,7 +99,8 @@
 }
 
 .section {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
+  width: 100%;
 }
 
 .categoryHeader {
@@ -117,7 +119,8 @@
 .categoryLine {
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, var(--glass-border), transparent);
+  background: var(--glass-border);
+  opacity: 0.3;
 }
 
 .grid {

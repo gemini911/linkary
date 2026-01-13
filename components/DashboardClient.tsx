@@ -66,7 +66,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
             <main className={styles.main}>
                 <header className={styles.header}>
                     <div>
-                        <h1 className={styles.title}>Tool Navigator</h1>
+                        <h1 className={styles.title}>Tools for UI/UX desinger</h1>
                         <p style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Your personal toolkit managed on Supabase</p>
                     </div>
                     <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
