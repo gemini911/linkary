@@ -153,12 +153,12 @@ function ToolCard({ tool }: { tool: Tool }) {
     };
 
     const rootDomain = getRootDomain(tool.url);
-    // 优先级：1. 数据库手动上传的 logo -> 2. Clearbit 高清 Logo 服务 -> 3. Google Favicon 服务 -> 4. 本地高清默认图
+    // 优先级：1. 数据库手动上传的 logo -> 2. Clearbit 高清 Logo 服务 -> 3. 本地高清默认图 (带版本号避开缓存)
+    // 移除 Google 服务，因为它在找不到图标时会返回一个极度模糊的默认地球，导致无法触发 onError
     const initialIcon = tool.logo ||
-        `https://logo.clearbit.com/${rootDomain}` ||
-        `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`;
+        `https://logo.clearbit.com/${rootDomain}`;
 
-    const [imgSrc, setImgSrc] = useState(initialIcon);
+    const [imgSrc, setImgSrc] = useState(initialIcon || '/earth-fill.png?v=1');
 
     return (
         <a
@@ -171,19 +171,15 @@ function ToolCard({ tool }: { tool: Tool }) {
                 <div className={styles.cardImageWrapper}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src={imgSrc || '/earth-fill.png'}
+                        src={imgSrc || '/earth-fill.png?v=1'}
                         alt={tool.name}
                         width={24}
                         height={24}
                         className={styles.cardImage}
                         onError={() => {
-                            // 级联回退逻辑
-                            if (imgSrc.includes('clearbit.com')) {
-                                // 如果高清服务失败，尝试 Google 服务 (128像素)
-                                setImgSrc(`https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`);
-                            } else if (imgSrc.includes('google.com') || imgSrc !== '/earth-fill.png') {
-                                // 如果 Google 服务也失败，使用本地高清默认图
-                                setImgSrc('/earth-fill.png');
+                            // 如果 initialIcon 加载失败（不论是手动 logo 还是 Clearbit），直接退回到本地高清图
+                            if (imgSrc !== '/earth-fill.png?v=1') {
+                                setImgSrc('/earth-fill.png?v=1');
                             }
                         }}
                     />
