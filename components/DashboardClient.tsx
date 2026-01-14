@@ -153,8 +153,11 @@ function ToolCard({ tool }: { tool: Tool }) {
     };
 
     const rootDomain = getRootDomain(tool.url);
-    // 优先使用数据库中的 logo，如果没有则使用高清默认图标
-    const initialIcon = tool.logo || '/earth-fill.png';
+    // 优先级：1. 数据库手动上传的 logo -> 2. Clearbit 高清 Logo 服务 -> 3. Google Favicon 服务 -> 4. 本地高清默认图
+    const initialIcon = tool.logo ||
+        `https://logo.clearbit.com/${rootDomain}` ||
+        `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`;
+
     const [imgSrc, setImgSrc] = useState(initialIcon);
 
     return (
@@ -174,7 +177,12 @@ function ToolCard({ tool }: { tool: Tool }) {
                         height={24}
                         className={styles.cardImage}
                         onError={() => {
-                            if (imgSrc !== '/earth-fill.png') {
+                            // 级联回退逻辑
+                            if (imgSrc.includes('clearbit.com')) {
+                                // 如果高清服务失败，尝试 Google 服务 (128像素)
+                                setImgSrc(`https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`);
+                            } else if (imgSrc.includes('google.com') || imgSrc !== '/earth-fill.png') {
+                                // 如果 Google 服务也失败，使用本地高清默认图
                                 setImgSrc('/earth-fill.png');
                             }
                         }}
