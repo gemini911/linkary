@@ -168,7 +168,7 @@ function ToolCard({ tool }: { tool: Tool }) {
                 <div className={styles.cardImageWrapper}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src={error ? '/default-favicon.png' : faviconUrl}
+                        src={error || !faviconUrl ? '/earth-fill.png' : faviconUrl}
                         alt={tool.name}
                         width={24}
                         height={24}
