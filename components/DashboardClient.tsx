@@ -153,7 +153,8 @@ function ToolCard({ tool }: { tool: Tool }) {
     };
 
     const rootDomain = getRootDomain(tool.url);
-    const initialIcon = tool.logo || `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=64`;
+    // 优先使用数据库中的 logo，如果没有则使用高清默认图标
+    const initialIcon = tool.logo || '/earth-fill.png';
     const [imgSrc, setImgSrc] = useState(initialIcon);
 
     return (
