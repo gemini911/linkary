@@ -138,8 +138,6 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
 }
 
 function ToolCard({ tool }: { tool: Tool }) {
-    const [error, setError] = useState(false);
-
     // 智能提取主域名 (e.g., docs.nextjs.org -> nextjs.org)
     const getRootDomain = (urlStr: string) => {
         try {
@@ -155,7 +153,8 @@ function ToolCard({ tool }: { tool: Tool }) {
     };
 
     const rootDomain = getRootDomain(tool.url);
-    const faviconUrl = tool.logo || `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=64`;
+    const initialIcon = tool.logo || `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=64`;
+    const [imgSrc, setImgSrc] = useState(initialIcon);
 
     return (
         <a
@@ -168,12 +167,16 @@ function ToolCard({ tool }: { tool: Tool }) {
                 <div className={styles.cardImageWrapper}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src={error || !faviconUrl ? '/earth-fill.png' : faviconUrl}
+                        src={imgSrc || '/earth-fill.png'}
                         alt={tool.name}
                         width={24}
                         height={24}
                         className={styles.cardImage}
-                        onError={() => setError(true)}
+                        onError={() => {
+                            if (imgSrc !== '/earth-fill.png') {
+                                setImgSrc('/earth-fill.png');
+                            }
+                        }}
                     />
                 </div>
                 <h3 className={styles.cardTitle}>{tool.name}</h3>

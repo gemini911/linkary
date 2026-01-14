@@ -14,13 +14,16 @@
   padding: 2rem;
   background: var(--glass);
   backdrop-filter: blur(20px);
-  position: sticky;
+  position: fixed;
+  left: 0;
   top: 0;
+  bottom: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   overflow-y: auto;
+  z-index: 50;
 }
 
 .sidebarTitle {
@@ -65,10 +68,9 @@
 .main {
   flex: 1;
   padding: 3rem 4rem;
+  margin-left: 260px;
+  width: calc(100% - 260px);
   max-width: 1800px;
-  /* 增大最大宽度以适配 4K */
-  margin: 0;
-  width: 100%;
 }
 
 .header {
