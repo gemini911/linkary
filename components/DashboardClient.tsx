@@ -153,12 +153,9 @@ function ToolCard({ tool }: { tool: Tool }) {
     };
 
     const rootDomain = getRootDomain(tool.url);
-    // 优先级：1. 数据库手动上传的 logo -> 2. Clearbit 高清 Logo 服务 -> 3. 本地高清默认图 (带版本号避开缓存)
-    // 移除 Google 服务，因为它在找不到图标时会返回一个极度模糊的默认地球，导致无法触发 onError
-    const initialIcon = tool.logo ||
-        `https://logo.clearbit.com/${rootDomain}`;
-
-    const [imgSrc, setImgSrc] = useState(initialIcon || '/earth-fill.png?v=1');
+    // 优先级：1. 数据库 Logo -> 2. Unavatar 高清服务
+    const initialIcon = tool.logo || `https://unavatar.io/${rootDomain}?fallback=false`;
+    const [imgSrc, setImgSrc] = useState(initialIcon);
 
     return (
         <a
@@ -171,15 +168,18 @@ function ToolCard({ tool }: { tool: Tool }) {
                 <div className={styles.cardImageWrapper}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src={imgSrc || '/earth-fill.png?v=1'}
+                        src={imgSrc}
                         alt={tool.name}
                         width={24}
                         height={24}
                         className={styles.cardImage}
                         onError={() => {
-                            // 如果 initialIcon 加载失败（不论是手动 logo 还是 Clearbit），直接退回到本地高清图
-                            if (imgSrc !== '/earth-fill.png?v=1') {
-                                setImgSrc('/earth-fill.png?v=1');
+                            if (imgSrc.includes('unavatar.io')) {
+                                // 如果 Unavatar 没找到，尝试 Google (128 像素)
+                                setImgSrc(`https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`);
+                            } else {
+                                // 如果 Google 也模糊或加载失败，直接使用本地高清图
+                                setImgSrc('/earth-fill.png?v=2');
                             }
                         }}
                     />
