@@ -25,11 +25,24 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     const [activeCategory, setActiveCategory] = useState('All');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [theme, setTheme] = useState('dark');
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         setTheme(savedTheme);
         document.body.setAttribute('data-theme', savedTheme);
+
+        // 管理员模式逻辑：通过 URL 参数 ?admin=true 激活
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.get('admin') === 'true') {
+            localStorage.setItem('isAdmin', 'true');
+            setIsAdmin(true);
+        } else if (queryParams.get('admin') === 'false') {
+            localStorage.removeItem('isAdmin');
+            setIsAdmin(false);
+        } else {
+            setIsAdmin(localStorage.getItem('isAdmin') === 'true');
+        }
     }, []);
 
     const toggleTheme = () => {
@@ -66,12 +79,14 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
             <main className={styles.main}>
                 <header className={styles.header}>
                     <div>
-                        <h1 className={styles.title}>Tools for UI/UX desinger</h1>
+                        <h1 className={styles.title}>Tools for designer</h1>
                         <p style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Your personal toolkit managed on Supabase</p>
                     </div>
-                    <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
-                        + Add Tool
-                    </button>
+                    {isAdmin && (
+                        <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
+                            + Add Tool
+                        </button>
+                    )}
                 </header>
 
                 <AddSiteModal
