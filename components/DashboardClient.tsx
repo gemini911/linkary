@@ -168,8 +168,8 @@ function ToolCard({ tool }: { tool: Tool }) {
     };
 
     const rootDomain = getRootDomain(tool.url);
-    // 优先级：1. 数据库 Logo -> 2. Unavatar 高清服务
-    const initialIcon = tool.logo || `https://unavatar.io/${rootDomain}?fallback=false`;
+    // 优先级：1. 数据库 Logo -> 2. Google 高清 Favicon (128px) -> 3. Unavatar 兜底
+    const initialIcon = tool.logo || `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`;
     const [imgSrc, setImgSrc] = useState(initialIcon);
 
     return (
@@ -189,11 +189,11 @@ function ToolCard({ tool }: { tool: Tool }) {
                         height={24}
                         className={styles.cardImage}
                         onError={() => {
-                            if (imgSrc.includes('unavatar.io')) {
-                                // 如果 Unavatar 没找到，尝试 Google (128 像素)
-                                setImgSrc(`https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`);
-                            } else {
-                                // 如果 Google 也模糊或加载失败，直接使用本地高清图
+                            if (imgSrc.includes('google.com')) {
+                                // 如果 Google 没加载出来（如某些内网或被屏蔽站点），尝试 Unavatar
+                                setImgSrc(`https://unavatar.io/${rootDomain}`);
+                            } else if (imgSrc.includes('unavatar.io')) {
+                                // 如果 Unavatar 也失败，使用本地兜底
                                 setImgSrc('/earth-fill.png?v=2');
                             }
                         }}
