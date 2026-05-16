@@ -53,7 +53,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     };
 
 
-    const categories = ['All', ...Array.from(new Set(initialTools.map((tool) => tool.category || 'Uncategorized')))];
+    const categories = ['All', ...Array.from(new Set(tools.map((tool) => tool.category || 'Uncategorized')))];
 
     const filteredTools = activeCategory === 'All'
         ? tools
@@ -61,64 +61,59 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
 
     return (
         <div className={styles.container}>
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarTitle}>Categories</div>
-                <nav className={styles.nav}>
-                    {categories.map((category) => (
-                        <button
-                            key={category}
-                            onClick={() => setActiveCategory(category)}
-                            className={`${styles.navLink} ${activeCategory === category ? styles.activeNavLink : ''}`}
-                        >
-                            {category}
-                        </button>
-                    ))}
-                </nav>
-            </aside>
-
             <main className={styles.main}>
-                <header className={styles.header}>
-                    <div>
-                        <h1 className={styles.title}>Tools for designer</h1>
-                        <p style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Your personal toolkit managed on Supabase</p>
-                    </div>
+                <section className={styles.hero}>
+                    <div className={styles.heroMeta}>Fast Design Directory</div>
+                    <h1 className={styles.title}>Tools for designers who move fast.</h1>
+                    <p className={styles.subtitle}>
+                        A curated launchpad for design, product, and creative work.
+                    </p>
                     {isAdmin && (
                         <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
                             + Add Tool
                         </button>
                     )}
-                </header>
+                </section>
 
-                <AddSiteModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onAdd={(newTool) => setTools([newTool, ...tools])}
-                    supabaseUrl={supabaseUrl}
-                    supabaseKey={supabaseKey}
-                />
+                <section className={styles.library} aria-label="Tool library">
+                    <div className={styles.tabs} role="tablist" aria-label="Filter tools by category">
+                        {categories.map((category) => (
+                            <button
+                                key={category}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeCategory === category}
+                                onClick={() => setActiveCategory(category)}
+                                className={`${styles.tab} ${activeCategory === category ? styles.activeTab : ''}`}
+                            >
+                                <span>{category}</span>
+                                <span className={styles.tabCount}>
+                                    {category === 'All'
+                                        ? tools.length
+                                        : tools.filter(tool => (tool.category || 'Uncategorized') === category).length}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
 
-                {activeCategory === 'All' ? (
-                    // Group by category when in 'All' view
-                    Array.from(new Set(tools.map(t => t.category || 'Uncategorized'))).map(category => (
-                        <section key={category} className={styles.section}>
-                            <div className={styles.categoryHeader}>
-                                <h2 className={styles.categoryTitle}>{category}</h2>
-                                <div className={styles.categoryLine} />
-                            </div>
-                            <div className={styles.grid}>
-                                {tools
-                                    .filter(tool => (tool.category || 'Uncategorized') === category)
-                                    .map(tool => (
-                                        <ToolCard key={tool.id} tool={tool} />
-                                    ))}
-                            </div>
-                        </section>
-                    ))
-                ) : (
+                    <AddSiteModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        onAdd={(newTool) => setTools([newTool, ...tools])}
+                        supabaseUrl={supabaseUrl}
+                        supabaseKey={supabaseKey}
+                    />
+
                     <section className={styles.section}>
                         <div className={styles.categoryHeader}>
-                            <h2 className={styles.categoryTitle}>{activeCategory}</h2>
-                            <div className={styles.categoryLine} />
+                            <div>
+                                <h2 className={styles.categoryTitle}>
+                                    {activeCategory === 'All' ? 'All tools' : activeCategory}
+                                </h2>
+                                <p className={styles.categorySubtitle}>
+                                    {filteredTools.length} {filteredTools.length === 1 ? 'resource' : 'resources'} ready to open.
+                                </p>
+                            </div>
                         </div>
                         <div className={styles.grid}>
                             {filteredTools.map(tool => (
@@ -126,7 +121,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                             ))}
                         </div>
                     </section>
-                )}
+                </section>
             </main>
 
             <button className={styles.themeToggle} onClick={toggleTheme} title="Toggle Theme">
