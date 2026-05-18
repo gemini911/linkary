@@ -20,6 +20,37 @@ interface DashboardClientProps {
     supabaseKey: string;
 }
 
+const CATEGORY_ORDER = [
+    'All',
+    'Skills',
+    '金融Skills',
+    '股票API',
+    'AI炒股',
+    'MCP',
+    'Agent',
+    '大模型',
+    'Figma插件',
+    '小工具',
+    '好作品',
+    '设计系统',
+    '设计灵感',
+    '图标',
+    '字体',
+    '图库',
+    '软件',
+    '收款',
+];
+
+const AI_ICON_CATEGORIES = new Set([
+    'Skills',
+    'AI炒股',
+    '金融Skills',
+    'Agent',
+    '股票API',
+    'MCP',
+    '大模型',
+]);
+
 export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey }: DashboardClientProps) {
     const [tools, setTools] = useState(initialTools);
     const [activeCategory, setActiveCategory] = useState('All');
@@ -53,7 +84,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     };
 
 
-    const categories = ['All', ...Array.from(new Set(tools.map((tool) => tool.category || 'Uncategorized')))];
+    const categories = CATEGORY_ORDER;
 
     const filteredTools = activeCategory === 'All'
         ? tools
@@ -63,8 +94,10 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
         <div className={styles.container}>
             <main className={styles.main}>
                 <section className={styles.hero}>
-                    <div className={styles.heroMeta}>Fast Design Directory</div>
-                    <h1 className={styles.title}>Tools for designers who move fast.</h1>
+                    <h1 className={styles.title}>
+                        <span className={styles.titleLine}>Tools for financial</span>
+                        <span className={styles.titleLine}>designers</span>
+                    </h1>
                     <p className={styles.subtitle}>
                         A curated launchpad for design, product, and creative work.
                     </p>
@@ -86,6 +119,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                                 onClick={() => setActiveCategory(category)}
                                 className={`${styles.tab} ${activeCategory === category ? styles.activeTab : ''}`}
                             >
+                                {AI_ICON_CATEGORIES.has(category) && <AiMarkIcon />}
                                 <span>{category}</span>
                                 <span className={styles.tabCount}>
                                     {category === 'All'
@@ -144,6 +178,20 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                 )}
             </button>
         </div>
+    );
+}
+
+function AiMarkIcon() {
+    return (
+        <svg
+            className={styles.aiMarkIcon}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+        >
+            <path d="M12 0.5L16 8L23.5 12L16 16L12 23.5L8 16L0.5 12L8 8L12 0.5Z"></path>
+        </svg>
     );
 }
 
