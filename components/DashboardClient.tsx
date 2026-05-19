@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../app/page.module.css';
 import AddSiteModal from './AddSiteModal';
+import SequinWaveBackground from './SequinWaveBackground';
 
 interface Tool {
     id: number;
@@ -92,6 +93,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
 
     return (
         <div className={styles.container}>
+            <SequinWaveBackground />
             <main className={styles.main}>
                 <section className={styles.hero}>
                     <h1 className={styles.title}>
