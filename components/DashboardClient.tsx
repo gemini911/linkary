@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from '../app/page.module.css';
 import AddSiteModal from './AddSiteModal';
 import SequinWaveBackground from './SequinWaveBackground';
+import SubmitToolModal from './SubmitToolModal';
 
 interface Tool {
     id: number;
@@ -56,6 +57,7 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     const [tools, setTools] = useState(initialTools);
     const [activeCategory, setActiveCategory] = useState('All');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [theme, setTheme] = useState('dark');
     const [isAdmin, setIsAdmin] = useState(false);
 
@@ -94,6 +96,15 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     return (
         <div className={styles.container}>
             <SequinWaveBackground />
+            <header className={styles.topNav}>
+                <div className={styles.logoMark}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo.png" alt="FynnZhang" className={styles.logo} />
+                </div>
+                <button className={styles.submitNavButton} onClick={() => setIsSubmitModalOpen(true)}>
+                    Submit
+                </button>
+            </header>
             <main className={styles.main}>
                 <section className={styles.hero}>
                     <h1 className={styles.title}>
@@ -140,6 +151,11 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                         supabaseKey={supabaseKey}
                     />
 
+                    <SubmitToolModal
+                        isOpen={isSubmitModalOpen}
+                        onClose={() => setIsSubmitModalOpen(false)}
+                    />
+
                     <section className={styles.section}>
                         <div className={styles.categoryHeader}>
                             <div>
@@ -159,6 +175,10 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                     </section>
                 </section>
             </main>
+
+            <footer className={styles.footer}>
+                <div className={styles.footerInner}>© 2026 FynnZhang</div>
+            </footer>
 
             <button className={styles.themeToggle} onClick={toggleTheme} title="Toggle Theme">
                 {theme === 'dark' ? (
@@ -239,7 +259,7 @@ function ToolCard({ tool }: { tool: Tool }) {
                                 setImgSrc(`https://unavatar.io/${rootDomain}`);
                             } else if (imgSrc.includes('unavatar.io')) {
                                 // 如果 Unavatar 也失败，使用本地兜底
-                                setImgSrc('/earth-fill.png?v=2');
+                                setImgSrc('/tool-fallback.svg');
                             }
                         }}
                     />
