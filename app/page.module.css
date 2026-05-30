@@ -37,7 +37,7 @@
 }
 
 :global([data-theme='light']) .topNav {
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(240, 246, 255, 0.88);
 }
 
 .logoMark {
@@ -125,6 +125,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   padding-bottom: 0.08em;
+}
+
+:global([data-theme='dark']) .title {
+  background: linear-gradient(to right, rgba(244, 244, 245, 1), rgba(205, 212, 224, 1));
+  background-clip: text;
+  -webkit-background-clip: text;
 }
 
 .titleLine {
@@ -242,6 +248,39 @@
   color: var(--muted);
   font-size: 0.9rem;
   margin-top: 0.45rem;
+}
+
+.tagFilters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0 auto 1.6rem;
+}
+
+.tagFilter {
+  min-height: 34px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+}
+
+.tagFilter:hover {
+  color: var(--foreground);
+  border-color: var(--card-border);
+}
+
+.activeTagFilter {
+  background: var(--card-bg);
+  color: var(--foreground);
+  border-color: var(--accent);
+  box-shadow: 0 8px 20px -16px var(--accent);
 }
 
 .grid {
@@ -415,6 +454,17 @@
   }
 
   .tab {
+    flex: 0 0 auto;
+  }
+
+  .tagFilters {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+  }
+
+  .tagFilter {
     flex: 0 0 auto;
   }
 

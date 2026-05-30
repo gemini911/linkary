@@ -53,9 +53,24 @@ const AI_ICON_CATEGORIES = new Set([
     '大模型',
 ]);
 
+const GOOGLE_FAVICON_BLACKLIST = new Set([
+    'AI涨乐Skills',
+    '中金Skills',
+    '万得Agent',
+]);
+
+const FORCE_SITE_LOGO_FALLBACK = new Set([
+    'AI涨乐Skills',
+    '中金Skills',
+    '万得Agent',
+]);
+
+const TAG_FILTER_CATEGORIES = new Set(['Skills', '金融Skills', 'AI炒股']);
+
 export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey }: DashboardClientProps) {
     const [tools, setTools] = useState(initialTools);
     const [activeCategory, setActiveCategory] = useState('All');
+    const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [theme, setTheme] = useState('dark');
@@ -79,6 +94,10 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
         }
     }, []);
 
+    useEffect(() => {
+        setActiveTagFilter(null);
+    }, [activeCategory]);
+
     const toggleTheme = () => {
         const newTheme = theme === 'dark' ? 'light' : 'dark';
         setTheme(newTheme);
@@ -92,6 +111,21 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
     const filteredTools = activeCategory === 'All'
         ? tools
         : tools.filter(tool => (tool.category || 'Uncategorized') === activeCategory);
+
+    const showTagFilters = TAG_FILTER_CATEGORIES.has(activeCategory);
+    const availableTagFilters = showTagFilters
+        ? Array.from(
+            filteredTools.reduce((tagSet, tool) => {
+                tool.tags?.forEach((tag) => {
+                    if (tag) tagSet.add(tag);
+                });
+                return tagSet;
+            }, new Set<string>())
+        )
+        : [];
+    const visibleTools = activeTagFilter
+        ? filteredTools.filter((tool) => tool.tags?.includes(activeTagFilter))
+        : filteredTools;
 
     return (
         <div className={styles.container}>
@@ -163,12 +197,30 @@ export default function DashboardClient({ initialTools, supabaseUrl, supabaseKey
                                     {activeCategory === 'All' ? 'All tools' : activeCategory}
                                 </h2>
                                 <p className={styles.categorySubtitle}>
-                                    {filteredTools.length} {filteredTools.length === 1 ? 'resource' : 'resources'} ready to open.
+                                    {visibleTools.length} {visibleTools.length === 1 ? 'resource' : 'resources'} ready to open.
                                 </p>
                             </div>
                         </div>
+                        {showTagFilters && availableTagFilters.length > 0 && (
+                            <div className={styles.tagFilters} aria-label="Filter tools by tag">
+                                {availableTagFilters.map((tag) => {
+                                    const isActive = activeTagFilter === tag;
+                                    return (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => setActiveTagFilter(isActive ? null : tag)}
+                                            className={`${styles.tagFilter} ${isActive ? styles.activeTagFilter : ''}`}
+                                            aria-pressed={isActive}
+                                        >
+                                            {tag}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
                         <div className={styles.grid}>
-                            {filteredTools.map(tool => (
+                            {visibleTools.map(tool => (
                                 <ToolCard key={tool.id} tool={tool} />
                             ))}
                         </div>
@@ -218,24 +270,45 @@ function AiMarkIcon() {
 }
 
 function ToolCard({ tool }: { tool: Tool }) {
-    // 智能提取主域名 (e.g., docs.nextjs.org -> nextjs.org)
-    const getRootDomain = (urlStr: string) => {
+    const getHostname = (urlStr: string) => {
         try {
-            const host = new URL(urlStr).hostname;
-            const parts = host.split('.');
-            if (parts.length > 2) {
-                return parts.slice(-2).join('.');
-            }
-            return host;
+            return new URL(urlStr).hostname;
         } catch {
             return '';
         }
     };
 
-    const rootDomain = getRootDomain(tool.url);
-    // 优先级：1. 数据库 Logo -> 2. Google 高清 Favicon (128px) -> 3. Unavatar 兜底
-    const initialIcon = tool.logo || `https://www.google.com/s2/favicons?domain=${rootDomain}&sz=128`;
-    const [imgSrc, setImgSrc] = useState(initialIcon);
+    const getRootDomain = (hostname: string) => {
+        const parts = hostname.split('.');
+        if (parts.length > 2) {
+            return parts.slice(-2).join('.');
+        }
+        return hostname;
+    };
+
+    const hostname = getHostname(tool.url);
+    const rootDomain = getRootDomain(hostname);
+    const shouldSkipGoogleFavicon = GOOGLE_FAVICON_BLACKLIST.has(tool.name);
+    const forceSiteLogo = FORCE_SITE_LOGO_FALLBACK.has(tool.name);
+    const iconCandidates = forceSiteLogo
+        ? [tool.logo, '/logo.png'].filter(Boolean)
+        : [
+            tool.logo,
+            !shouldSkipGoogleFavicon && tool.url
+                ? `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(tool.url)}&sz=128`
+                : '',
+            rootDomain ? `https://icons.duckduckgo.com/ip3/${rootDomain}.ico` : '',
+            hostname ? `https://${hostname}/favicon.ico` : '',
+            rootDomain ? `https://unavatar.io/${rootDomain}` : '',
+            '/logo.png',
+        ].filter(Boolean);
+    const [iconIndex, setIconIndex] = useState(0);
+
+    useEffect(() => {
+        setIconIndex(0);
+    }, [tool.id, tool.logo, tool.url]);
+
+    const imgSrc = iconCandidates[iconIndex] || '/logo.png';
 
     return (
         <a
@@ -254,12 +327,8 @@ function ToolCard({ tool }: { tool: Tool }) {
                         height={24}
                         className={styles.cardImage}
                         onError={() => {
-                            if (imgSrc.includes('google.com')) {
-                                // 如果 Google 没加载出来（如某些内网或被屏蔽站点），尝试 Unavatar
-                                setImgSrc(`https://unavatar.io/${rootDomain}`);
-                            } else if (imgSrc.includes('unavatar.io')) {
-                                // 如果 Unavatar 也失败，使用本地兜底
-                                setImgSrc('/tool-fallback.svg');
+                            if (iconIndex < iconCandidates.length - 1) {
+                                setIconIndex(iconIndex + 1);
                             }
                         }}
                     />
